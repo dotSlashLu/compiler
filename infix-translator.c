@@ -37,7 +37,7 @@ int main(int argc, char **argv)
         printf("Translating %s\n", s);
 
         while (isspace(*s)) s++;
-        while (*s != '\0') expr();
+        expr();
         fputc('\n', stdout);
         return 0;
 }
@@ -65,7 +65,9 @@ void rest()
                 if (*s != '\0') term();
         }
         else ;
-        fputc(sign, stdout);
+        printf("%c ", sign);
+
+        if (*s != '\0') rest();
 }
 
 void expr()
