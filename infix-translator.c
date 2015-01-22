@@ -23,13 +23,12 @@ static char *s;
 
 void syntaxerr(const char[]);
 void term();
-void rest();
 void expr();
 
 int main(int argc, char **argv)
 {
         if (argc < 2) {
-                printf("Usage: %s [post fix equation]\n", argv[0]);
+                printf("Usage: %s [infix equation]\n", argv[0]);
                 return 1;
         }
 
@@ -50,30 +49,20 @@ void term()
         fputc(' ', stdout);
 }
 
-void rest()
-{
-        char sign;
-        while (isspace(*s)) s++;
-        if (*s == '+') {
-                sign = '+';
-                s++;
-                if (*s != '\0') term();
-        }
-        else if (*s == '-') {
-                sign = '-';
-                s++;
-                if (*s != '\0') term();
-        }
-        else ;
-        printf("%c ", sign);
-
-        if (*s != '\0') rest();
-}
-
 void expr()
 {
+        char sign;
         term();
-        rest();
+        while (*s != '\0') {
+                while (isspace(*s)) s++;
+                if (*s == '+' || *s == '-') {
+                        sign = *s;
+                        s++;
+                        term();
+                }
+                else ;
+                printf("%c ", sign);
+        }
 }
 
 void syntaxerr(const char err[])
