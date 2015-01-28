@@ -10,6 +10,7 @@ typedef struct node {
 } node_t, *nodeptr;
 
 nodeptr bt_install(nodeptr root, char *key, void *val);
-nodeptr bt_find(char *key);
+nodeptr bt_find(nodeptr from, char *key);
+void    bt_free(nodeptr root);
 
 #endif

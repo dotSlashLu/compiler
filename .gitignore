@@ -1,3 +1,6 @@
 *.swp
+
 *.dSYM
 *.out
+*.class
+*.beam
