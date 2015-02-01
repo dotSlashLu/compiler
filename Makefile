@@ -1,11 +1,13 @@
-CC=gcc
-CCFLAGS=-g -Wall
+CC = gcc
+CCFLAGS = -g -Wall
+DIRS = lib src
 
-btree_test: btree.c btree_test.c
-	$(CC) $^ -o btree_test.out $(CCFLAGS)
-
-predictive_parser:	btree_test
-	$(CC) predictive_parser.c -o predictive_parser.out $(CCFLAGS)
+all:
+	for i in $(DIRS); do \
+		(cd $$i && echo "Making $$i" && $(MAKE)) || exit 1; \
+	done
 
 clean:
-	rm -rf *.out *.class *.beam *.dSYM
+	for i in $(DIRS); do \
+		(cd $$i && echo "Cleaning $$i" && $(MAKE) clean) || exit 1; \
+	done

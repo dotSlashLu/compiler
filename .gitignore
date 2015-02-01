@@ -1,6 +1,17 @@
+# vim
 *.swp
 
+# emacs
+\#*\#
+
+# output
+# OSX debug symbol
 *.dSYM
+# C
+*.a
 *.out
+*.o
+# Java
 *.class
+# Erlang
 *.beam
