@@ -1,6 +1,6 @@
 CC = gcc
 CCFLAGS = -g -Wall
-CCFLAGS_LIB=-c
+CCFLAGS_LIB = -c
 
 all: btree
 
