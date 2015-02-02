@@ -50,60 +50,78 @@ int main(int argc, char **argv)
         while (1) {
                 tokp tok = scan();
                 printf("got tok: %d\n", tok->type);
-                if (tok->type == EOF) break;
+                if (tok->data != NULL) {
+                        switch(tok->type) {
+                        case tok_num:
+                                printf("num data: %ld\n", *(long *)tok->data);
+                                break;
+                        case tok_id:
+                                printf("id data: %s\n", (char *)tok->data);
+                                break;
+                        };
+                        free(tok->data);
+                }
+                if (tok->type == EOF) {
+                        free(tok);
+                        break;
+                }
                 free(tok);
         }
         bt_free(symtable);
+        fclose(in);
+        return 0;
 }
 
 tokp scan()
 {
+        fputc('\n', stdout);
         // reset var peek
         peek = ' ';
-        tokp tok = malloc(sizeof(tok_t));
+        tokp tok = calloc(1, sizeof(tok_t));
 
         // space
-        while ((peek = fgetc(in)) == ' ' || peek == '\t') {
-                printf("got space\n");
-        }
+        while ((peek = fgetc(in)) == ' ' || peek == '\t') { }
 
         // new line
         while (peek  == '\n') {
-                printf("got new line\n");
                 line++;
                 peek = fgetc(in);
         }
 
         // id
         if (isalpha(peek)) {
-                puts("got alpha\n");
                 char *id = malloc(sizeof(char) * MAX_ID_LEN);
                 if (id == NULL) {
                         perror("malloc");
                         exit(1);
                 }
-                int i = 0;
+                char *tmp = id;
+
                 while(isalnum(peek)) {
+                        *tmp++ = peek;
                         peek = fgetc(in);
-                        id[i++] = peek;
                 }
+                *tmp++ = '\0';
                 tok->type = tok_id;
                 tok->data = id;
-                puts("installing\n");
+                // printf("got id: %s\n", id);
                 bt_install(symtable, id, tok);
-                free(id);
                 return tok;
         }
 
         // num
         if (isdigit(peek)) {
-                printf("got num\n");
                 char *num = malloc(sizeof(char) * MAX_ID_LEN);
-                int i = 0;
-                while(isdigit(peek)) {
-                        peek = fgetc(in);
-                        num[i++] = peek;
+                if (num == NULL) {
+                        perror("malloc");
+                        exit(1);
                 }
+                char *tmp = num;
+                while(isdigit(peek)) {
+                        *tmp++ = peek;
+                        peek = fgetc(in);
+                }
+                *tmp++ = '\0';
 
                 long *number = malloc(sizeof(long));
                 if (number == NULL) {
@@ -112,14 +130,13 @@ tokp scan()
                 }
                 *number = (long)atol(num);
                 free(num);
+                // printf("got num: %ld\n", *number);
 
                 tok->type = tok_num;
                 tok->data = number;
                 return tok;
         }
 
-        char *c = calloc(1, sizeof(char));
-        *c = peek;
-        tok->type = *c;
+        tok->type = peek;
         return tok;
 }
