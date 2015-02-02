@@ -41,6 +41,7 @@ nodeptr bt_install(nodeptr n, char *key, void *val)
 static nodeptr _setup_node(char *key, void *val, unsigned long hash)
 {
         nodeptr n = calloc(1, sizeof(node_t));
+        if (n == NULL) return NULL;
         n->key = key;
         n->val = val;
         n->hash = hash;
