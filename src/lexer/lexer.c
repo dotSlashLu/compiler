@@ -49,14 +49,16 @@ int main(int argc, char **argv)
         // scan
         while (1) {
                 tokp tok = scan();
-                printf("got tok: %d\n", tok->type);
+                printf("line %d got tok: %d\n", line, tok->type);
                 if (tok->data != NULL) {
                         switch(tok->type) {
                         case tok_num:
-                                printf("num data: %ld\n", *(long *)tok->data);
+                                printf("num data: %ld\n",
+                                        *(long *)tok->data);
                                 break;
                         case tok_id:
-                                printf("id data: %s\n", (char *)tok->data);
+                                printf("id data: %s\n",
+                                        (char *)tok->data);
                                 break;
                         };
                         free(tok->data);
@@ -75,18 +77,14 @@ int main(int argc, char **argv)
 tokp scan()
 {
         fputc('\n', stdout);
-        // reset var peek
-        peek = ' ';
         tokp tok = calloc(1, sizeof(tok_t));
 
-        // space
-        while ((peek = fgetc(in)) == ' ' || peek == '\t') { }
-
-        // new line
-        while (peek  == '\n') {
-                line++;
-                peek = fgetc(in);
-        }
+        // space and new line
+        do {
+                if (peek == ' ' || peek == '\t') continue;
+                else if (peek == '\n') line++;
+                else break;
+        } while ((peek = fgetc(in)));
 
         // id
         if (isalpha(peek)) {
@@ -95,9 +93,9 @@ tokp scan()
                         perror("malloc");
                         exit(1);
                 }
-                char *tmp = id;
 
-                while(isalnum(peek)) {
+                char *tmp = id;
+                while (isalnum(peek)) {
                         *tmp++ = peek;
                         peek = fgetc(in);
                 }
@@ -117,7 +115,7 @@ tokp scan()
                         exit(1);
                 }
                 char *tmp = num;
-                while(isdigit(peek)) {
+                while (isdigit(peek)) {
                         *tmp++ = peek;
                         peek = fgetc(in);
                 }
@@ -137,6 +135,8 @@ tokp scan()
                 return tok;
         }
 
+        // other
         tok->type = peek;
+        peek = ' ';
         return tok;
 }
