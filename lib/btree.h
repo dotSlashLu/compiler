@@ -9,6 +9,7 @@ typedef struct node {
         void *val;
 } node_t, *nodeptr;
 
+nodeptr bt_init();
 nodeptr bt_install(nodeptr root, char *key, void *val);
 nodeptr bt_find(nodeptr from, char *key);
 void    bt_free(nodeptr root);

@@ -27,13 +27,13 @@
 static char peek = ' ';
 static FILE *in;
 static int line = 1;
-static nodeptr symtable = NULL;
+static nodeptr symtable;
 tokp scan();
 
 int main(int argc, char **argv)
 {
         // init symbol table
-        symtable = bt_install(symtable, "", "");
+        symtable = bt_init();
         if (symtable == NULL) {
                 printf("Can't create symbol table\n");
                 exit(1);

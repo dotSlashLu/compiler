@@ -6,8 +6,8 @@
 
 int main(int argc, char **argv)
 {
-        nodeptr root = NULL;
-        root = bt_install(root, "key1ase", "val1");
+        nodeptr root = bt_init();
+        bt_install(root, "key1ase", "val1");
         bt_install(root, "abc2", "def2");
         bt_install(root, "abc3", "def3");
         bt_install(root, "abc5", "def5");

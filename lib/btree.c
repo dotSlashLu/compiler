@@ -7,6 +7,13 @@
 static unsigned long _hash(char *str);
 static nodeptr _setup_node(char *key, void *val, unsigned long hash);
 
+nodeptr bt_init()
+{
+        nodeptr n = NULL;
+        n = bt_install(n, "", "");
+        return n;
+}
+
 nodeptr bt_install(nodeptr n, char *key, void *val)
 {
         unsigned long hash = _hash(key);

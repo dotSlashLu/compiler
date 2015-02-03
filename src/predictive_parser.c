@@ -105,6 +105,7 @@ void gettok()
         // EOF
         if (tok == EOF) {
                 printf("Token stream ended.\n");
+                fclose(file);
                 exit(1);
         }
 
