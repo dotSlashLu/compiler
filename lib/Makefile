@@ -1,7 +1,7 @@
 CC = gcc
 CCFLAGS = -g -Wall
 CCFLAGS_LIB = -c
-TESTS = btree symtbl
+TESTS = btree_test.out symtbl_test.out
 
 all: libbtree.a libsymtbl.a
 
@@ -16,12 +16,12 @@ libsymtbl.a: symtbl.c symtbl.h
 btree_test.out: libbtree.a
 	$(CC) btree_test.c -L. -lbtree -o btree_test.out $(CCFLAGS)
 
-symtbl_test.out: libsymtbl.a
+symtbl_test.out: libbtree.a libsymtbl.a
 	$(CC) symtbl_test.c -L. -lsymtbl -lbtree -o symtbl_test.out $(CCFLAGS)
 
-test: btree_test.out symtbl_test.out
+test: $(TESTS)
 	for i in $^; do \
-		`./$$i`; \
+		./$$i; 				\
 	done;
 
 clean:

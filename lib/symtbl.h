@@ -16,6 +16,8 @@
 #include "btree.h"
 #include <string.h>
 
+#define DS_SYMTBL_MAX_CHILD 128
+
 typedef struct env {
         nodeptr scope;
         struct env **children;

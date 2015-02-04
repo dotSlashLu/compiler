@@ -13,9 +13,12 @@ symtbl st_createScope(symtbl parent)
         env->scope = scope;
         env->parent = parent;
         env->nchild = 0;
+        env->children = calloc(1, sizeof(symtbl) * DS_SYMTBL_MAX_CHILD);
         if (parent != NULL) {
                 *(parent->children + parent->nchild) = env;
                 parent->nchild += 1;
+                // max child limit exceeded
+                if (parent->nchild > DS_SYMTBL_MAX_CHILD) return NULL;
         }
         return env;
 }
@@ -41,12 +44,13 @@ nodeptr st_search(symtbl from, char *key)
         return NULL;
 }
 
-void st_free(symtbl root)
+void st_free(symtbl node)
 {
         int n = 0;
-        if (root->scope != NULL)
-                bt_free(root->scope);
-        while (n < root->nchild)
-                st_free(*(root->children + n++));
-        free(root);
+        if (node->scope != NULL)
+                bt_free(node->scope);
+        while (n < node->nchild)
+                st_free(*(node->children + n++));
+        free(node->children);
+        free(node);
 }

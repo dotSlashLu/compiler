@@ -1,5 +1,5 @@
-#ifndef _BTREE_H
-#define _BTREE_H
+#ifndef DS_BTREE_H
+#define DS_BTREE_H
 
 typedef struct node {
         struct node *L;
