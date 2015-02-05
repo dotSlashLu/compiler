@@ -39,7 +39,9 @@ rest([Peek|T]) ->
   term(T),
   op(Peek),
   [_|Rest] = T,
-  rest(Rest).
+  rest(Rest);
+rest([]) ->
+  ok.
 
 op(Peek) when Peek == 43; Peek == 45 ->
   io:format("~c ", [Peek]).
