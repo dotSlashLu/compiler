@@ -3,6 +3,8 @@
  *      Only available for plus and minus.
  *
  *      Translation scheme:
+ *              expr -> term rest
+ *
  *              term -> 0       {print 0}
  *                   | 1        {print 1}
  *                   | 2        {print 2}
@@ -10,8 +12,8 @@
  *                   ...
  *                   | 9        {print 9}
  *
- *              rest -> + term     {print +}
- *                   |  - term     {print -}
+ *              rest -> + term rest    {print +}
+ *                   |  - term rest    {print -}
  *                   |  Ɛ
  **/
 #include <stdio.h>
