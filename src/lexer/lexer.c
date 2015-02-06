@@ -48,28 +48,26 @@ int main(int argc, char **argv)
         while (1) {
                 tokp tok = scan(in);
 
-                if (tok->data != NULL) {
-                        switch(tok->type) {
-                                case tok_num:
-                                        printf("%ld", *(long *)tok->data);
-                                        break;
-                                case tok_id:
-                                        printf("%s", (char *)tok->data);
-                                        break;
-                        };
-                        free(tok->data);
-                }
-                else {
-                        if (tok->type == '\n')
-                                printf("\t line %d\n", line++);
-                        printf("%c", tok->type);
-                }
+                switch(tok->type) {
+                        case tok_num:
+                                printf("%ld", *(long *)tok->data);
+                                break;
 
-                // switch(tok->type) {
-                //         case '\n':
-                //                 line++;
-                //                 break;
-                // }
+                        case tok_id:
+                                printf("%s", (char *)tok->data);
+                                break;
+
+                        case '\n':
+                                printf("\t line %d\n", line++);
+                                break;
+
+                        case EOF:
+                                break;
+
+                        default:
+                                printf("%c", tok->type);
+                                break;
+                };
 
                 if (tok->type == EOF) {
                         free(tok->data);
@@ -77,6 +75,7 @@ int main(int argc, char **argv)
                         break;
                 }
 
+                free(tok->data);
                 free(tok);
         }
         bt_free(symtable);
