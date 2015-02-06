@@ -1,11 +1,10 @@
 CC = gcc
 CCFLAGS = -g -Wall
-JAVAC = javac
 ROOT = ..
-LIBDIR = $(ROOT)/lib
-DIRS = . lexer
+LIBDIR = lib
+DIRS = lib . lexer
 
-all: lexer.out infix_translator.out predictive_parser.out
+all: libs lexer.out infix_translator.out predictive_parser.out
 
 infix_translator.out: infix_translator.c
 	$(CC) $^ $(CCFLAGS) -o infix_translator.out
@@ -13,8 +12,11 @@ infix_translator.out: infix_translator.c
 predictive_parser.out: predictive_parser.c
 	$(CC) $^ $(CCFLAGS) -o predictive_parser.out
 
-lexer.out:
+lexer.out: libs
 	(cd lexer && $(MAKE)) || exit 1
+
+libs:
+	cd $(LIBDIR) && $(MAKE)
 
 clean:
 	for dir in $(DIRS); do \

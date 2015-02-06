@@ -1,3 +1,5 @@
+#define MAX_ID_LEN 128
+
 enum tok_types {
         tok_true = 256,
         tok_false,
@@ -10,3 +12,4 @@ typedef struct Token {
         void *data;
 } tok_t, *tokp;
 
+tokp scan(FILE *in);

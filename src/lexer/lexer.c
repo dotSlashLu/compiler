@@ -20,18 +20,16 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "scanner.h"
 #include "btree.h"
-#include "lexer.h"
 
-#define MAX_ID_LEN 20
-static char peek = ' ';
-static FILE *in;
-static int line = 1;
 static nodeptr symtable;
-tokp scan();
 
 int main(int argc, char **argv)
 {
+        FILE *in;
+        int line = 1;
+
         // init symbol table
         symtable = bt_init();
         if (symtable == NULL) {
@@ -48,25 +46,37 @@ int main(int argc, char **argv)
 
         // scan
         while (1) {
-                tokp tok = scan();
-                printf("line %d got tok: %d\n", line, tok->type);
+                tokp tok = scan(in);
+
                 if (tok->data != NULL) {
                         switch(tok->type) {
-                        case tok_num:
-                                printf("num data: %ld\n",
-                                        *(long *)tok->data);
-                                break;
-                        case tok_id:
-                                printf("id data: %s\n",
-                                        (char *)tok->data);
-                                break;
+                                case tok_num:
+                                        printf("%ld", *(long *)tok->data);
+                                        break;
+                                case tok_id:
+                                        printf("%s", (char *)tok->data);
+                                        break;
                         };
                         free(tok->data);
                 }
+                else {
+                        if (tok->type == '\n')
+                                printf("\t line %d\n", line++);
+                        printf("%c", tok->type);
+                }
+
+                // switch(tok->type) {
+                //         case '\n':
+                //                 line++;
+                //                 break;
+                // }
+
                 if (tok->type == EOF) {
+                        free(tok->data);
                         free(tok);
                         break;
                 }
+
                 free(tok);
         }
         bt_free(symtable);
@@ -74,69 +84,3 @@ int main(int argc, char **argv)
         return 0;
 }
 
-tokp scan()
-{
-        fputc('\n', stdout);
-        tokp tok = calloc(1, sizeof(tok_t));
-
-        // space and new line
-        do {
-                if (peek == ' ' || peek == '\t') continue;
-                else if (peek == '\n') line++;
-                else break;
-        } while ((peek = fgetc(in)));
-
-        // id
-        if (isalpha(peek)) {
-                char *id = malloc(sizeof(char) * MAX_ID_LEN);
-                if (id == NULL) {
-                        perror("malloc");
-                        exit(1);
-                }
-
-                char *tmp = id;
-                while (isalnum(peek)) {
-                        *tmp++ = peek;
-                        peek = fgetc(in);
-                }
-                *tmp++ = '\0';
-                tok->type = tok_id;
-                tok->data = id;
-                // printf("got id: %s\n", id);
-                bt_install(symtable, id, tok);
-                return tok;
-        }
-
-        // num
-        if (isdigit(peek)) {
-                char *num = malloc(sizeof(char) * MAX_ID_LEN);
-                if (num == NULL) {
-                        perror("malloc");
-                        exit(1);
-                }
-                char *tmp = num;
-                while (isdigit(peek)) {
-                        *tmp++ = peek;
-                        peek = fgetc(in);
-                }
-                *tmp++ = '\0';
-
-                long *number = malloc(sizeof(long));
-                if (number == NULL) {
-                        perror("malloc");
-                        exit(1);
-                }
-                *number = (long)atol(num);
-                free(num);
-                // printf("got num: %ld\n", *number);
-
-                tok->type = tok_num;
-                tok->data = number;
-                return tok;
-        }
-
-        // other
-        tok->type = peek;
-        peek = ' ';
-        return tok;
-}

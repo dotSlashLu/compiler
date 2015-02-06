@@ -1,6 +1,6 @@
 CC = gcc
 CCFLAGS = -g -Wall
-DIRS = lib src
+DIRS = src
 
 all:
 	for i in $(DIRS); do \
