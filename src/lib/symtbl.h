@@ -28,6 +28,9 @@ typedef struct env {
 symtbl st_createScope(symtbl parent);
 symtbl st_put(symtbl to, char *key, void *data);
 nodeptr st_search(symtbl from, char *key);
+// free node and it's children
 void st_free(symtbl root);
+// free node and all it's ancestors and children
+void st_free_deep(symtbl root);
 
 #endif

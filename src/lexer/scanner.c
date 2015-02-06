@@ -69,3 +69,10 @@ tokp scan(FILE *in)
         tok->type = peek;
         return tok;
 }
+
+void tok_free(tokp tok)
+{
+        if (!tok) return;
+        free(tok->data);
+        free(tok);
+}

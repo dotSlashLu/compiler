@@ -37,6 +37,6 @@ int main (int argc, char **argv)
         nodeptr res4 = st_search(scope3, "test3");
         if (res4 != NULL) printf("result: %s\n", (char *)res4->val);
 
-        st_free(root_scope);
+        st_free_deep(scope2);
         return 0;
 }

@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "btree.h"
 #include "symtbl.h"
 
-void _st_free_node(symtbl root);
+static void _st_free_root(symtbl root);
 
 symtbl st_createScope(symtbl parent)
 {
@@ -46,11 +47,23 @@ nodeptr st_search(symtbl from, char *key)
 
 void st_free(symtbl node)
 {
+        _st_free_root(node);
+}
+
+void st_free_deep(symtbl node)
+{
+        // trace up to root
+        while (node->parent != NULL) node = node->parent;
+        _st_free_root(node);
+}
+
+void _st_free_root(symtbl root)
+{
         int n = 0;
-        if (node->scope != NULL)
-                bt_free(node->scope);
-        while (n < node->nchild)
-                st_free(*(node->children + n++));
-        free(node->children);
-        free(node);
+        if (root->scope != NULL)
+                bt_free(root->scope);
+        while (n < root->nchild)
+                _st_free_root(*(root->children + n++));
+        free(root->children);
+        free(root);
 }

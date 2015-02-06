@@ -13,3 +13,4 @@ typedef struct Token {
 } tok_t, *tokp;
 
 tokp scan(FILE *in);
+void tok_free(tokp);
