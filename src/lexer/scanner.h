@@ -1,3 +1,6 @@
+#ifndef
+#define DS_SCANNER_H
+
 #define MAX_ID_LEN 128
 
 enum tok_types {
@@ -14,3 +17,5 @@ typedef struct Token {
 
 tokp scan(FILE *in);
 void tok_free(tokp);
+
+#endif

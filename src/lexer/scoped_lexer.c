@@ -51,7 +51,7 @@ static tokp tok;
 void block();
 void decls();
 void decl();
-
+void stmts();
 
 static void syntaxerror(char *err);
 
@@ -65,6 +65,7 @@ int main(int argc, char **argv)
 
         // program -> block
         block();
+        fclose(in);
         return 0;
 }
 
@@ -79,13 +80,32 @@ void block()
 
         if (tok->type != '{') {
                 char *err;
-                asprintf(&err, "Syntax Error: program \
-should start with '{', got %c in line %d\n", tok->type, line);
+                asprintf(&err,
+                        "Syntax Error: block \
+should start with '{', got %c in line %d\n",
+                        tok->type, line);
                 syntaxerror(err);
         }
 
+        tok_free(tok);
         symtbl env = st_createScope(NULL);
         fputc('{', stdout);
+
+        decls();
+        stmts();
+
+        tok = scan(in);
+        if (tok->type != '}') {
+                char *err;
+                asprintf(&err,
+                        "Syntax Error: block \
+should end with '}', got %c in line %d\n",
+                        tok->type, line);
+                syntaxerror(err);
+        }
+        tok_free(tok);
+        st_free(env);
+        fputc('}', stdout);
 }
 
 /**
@@ -105,12 +125,31 @@ void decl()
         tok = scan(in);
         if (tok->type != tok_id) {
                 char *err;
-                asprintf(&err, "Syntax Error: declaration \
-should start with a type, got %s in line %d\n", line, tok->type);
+                asprintf(&err,
+                        "Syntax Error: declaration \
+should start with a type, got %s in line %d\n",
+                        tok->type, line);
                 syntaxerror(err);
         }
         char *type = (char *)tok->data;
+        tok_free(tok);
+
         tok = scan(in);
+        if (tok->type != tok_id) {
+                char *err;
+                asprintf(&err,
+                        "Syntax Error: declaration \
+should end with an id, got %c in line %d\n",
+                        tok->type, line);
+                syntaxerror(err);
+        }
+        st_put(env, (char *)tok->data, type);
+        tok_free(tok);
+}
+
+void stmts()
+{
+
 }
 
 static void syntaxerror(char *err)
@@ -119,5 +158,6 @@ static void syntaxerror(char *err)
         free(err);
         if (env) st_free_deep(env);
         tok_free(tok);
+        fclose(in);
         exit(1);
 }
