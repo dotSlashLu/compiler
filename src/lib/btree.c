@@ -59,14 +59,11 @@ nodeptr bt_find(nodeptr n, char *key)
 {
         unsigned long hash = _hash(key);
         while (n != NULL) {
-                if (n->hash == hash && n->key == key)
-                        return n;
+                if (n->hash == hash) return n;
 
-                if (hash <= n->hash)
-                        n = n->L;
+                if (hash <= n->hash) n = n->L;
 
-                else if (hash > n->hash)
-                        n = n->R;
+                else if (hash > n->hash) n = n->R;
         }
         return NULL;
 }

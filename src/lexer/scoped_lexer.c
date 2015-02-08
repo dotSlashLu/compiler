@@ -52,6 +52,7 @@ void block();
 void decls();
 void decl();
 void stmts();
+void stmt();
 
 static void syntaxerror(char *err);
 
@@ -88,8 +89,12 @@ should start with '{', got %c in line %d\n",
         }
 
         tok_free(tok);
-        symtbl env = st_createScope(NULL);
-        fputc('{', stdout);
+        env = st_createScope(NULL);
+        if (env == NULL) {
+                char *err = "Can't create symbol table.";
+                syntaxerror(err);
+        }
+        fputs("{", stdout);
 
         decls();
         stmts();
@@ -105,7 +110,7 @@ should end with '}', got %c in line %d\n",
         }
         tok_free(tok);
         st_free(env);
-        fputc('}', stdout);
+        fputs("}\n", stdout);
 }
 
 /**
@@ -114,7 +119,7 @@ should end with '}', got %c in line %d\n",
 */
 void decls()
 {
-
+        decl();
 }
 
 /**
@@ -128,10 +133,11 @@ void decl()
                 asprintf(&err,
                         "Syntax Error: declaration \
 should start with a type, got %s in line %d\n",
-                        tok->type, line);
+                        tok->data, line);
                 syntaxerror(err);
         }
-        char *type = (char *)tok->data;
+        char *type = malloc(MAX_ID_LEN);
+        strcpy(type, tok->data);
         tok_free(tok);
 
         tok = scan(in);
@@ -143,18 +149,69 @@ should end with an id, got %c in line %d\n",
                         tok->type, line);
                 syntaxerror(err);
         }
-        st_put(env, (char *)tok->data, type);
+        char *id = malloc(MAX_ID_LEN);
+        strcpy(id, tok->data);
+        st_put(env, id, type);
         tok_free(tok);
+
+        tok = scan(in);
+        if (tok->type != ';') {
+                char *err;
+                asprintf(&err,
+                        "Syntax Error: decl \
+should end with ';', got %c in line %d\n",
+                        tok->type, line);
+                syntaxerror(err);
+        }
 }
 
 void stmts()
 {
+        stmt();
+}
 
+/*
+*      stmt    -> block
+*              |  factor ;
+*
+*      factor  -> id
+*/
+void stmt()
+{
+        tok = scan(in);
+
+        // factor
+        if (tok->type == tok_id) {
+                nodeptr node = st_search(env, (char *)tok->data);
+                if (node == NULL) {
+                        char *err;
+                        asprintf(&err,
+                                "Syntax Error: variable \
+%s undefined in line %d\n", tok->data, line);
+                        syntaxerror(err);
+                }
+                printf("%s: %s", tok->data, node->val);
+                tok_free(tok);
+
+                tok = scan(in);
+                if (tok->type != ';') {
+                        char *err;
+                        asprintf(&err,
+                                "Syntax Error: factor \
+should end with ';' in line %d\n", line);
+                        syntaxerror(err);
+                }
+                fputs("; ", stdout);
+                tok_free(tok);
+        }
+
+        // block
+        else block();
 }
 
 static void syntaxerror(char *err)
 {
-        fprintf(stderr, err);
+        fprintf(stdout, err);
         free(err);
         if (env) st_free_deep(env);
         tok_free(tok);

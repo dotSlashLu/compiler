@@ -1,4 +1,4 @@
-#ifndef
+#ifndef DS_SCANNER_H
 #define DS_SCANNER_H
 
 #define MAX_ID_LEN 128
