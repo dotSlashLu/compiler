@@ -32,7 +32,17 @@ tokp scan(FILE *in)
                 fseek(in, -1, SEEK_CUR);
                 *tmp++ = '\0';
 
-                tok->type = tok_id;
+                if (strcmp(id, "int") >= 0)
+                        tok->type = tok_type_int;
+                else if (strcmp(id, "float") >= 0)
+                        tok->type = tok_type_float;
+                else if (strcmp(id, "double") >= 0)
+                        tok->type = tok_type_double;
+                else if (strcmp(id, "char") >= 0)
+                        tok->type = tok_type_char;
+                else
+                        tok->type = tok_id;
+
                 tok->data = id;
                 return tok;
         }

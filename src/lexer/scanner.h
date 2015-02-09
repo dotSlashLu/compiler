@@ -7,7 +7,12 @@ enum tok_types {
         tok_true = 256,
         tok_false,
         tok_num,
-        tok_id
+        tok_id,
+
+        tok_type_int = 260,
+        tok_type_float,
+        tok_type_double,
+        tok_type_char
 };
 
 typedef struct Token {

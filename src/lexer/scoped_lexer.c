@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "symtbl.h"
 #include "scanner.h"
@@ -66,6 +67,9 @@ int main(int argc, char **argv)
 
         // program -> block
         block();
+
+        fputc('\n', stdout);
+        st_free_deep(env);
         fclose(in);
         return 0;
 }
@@ -77,7 +81,8 @@ int main(int argc, char **argv)
 */
 void block()
 {
-        tok = scan(in);
+        if (tok == NULL)
+                tok = scan(in);
 
         if (tok->type != '{') {
                 char *err;
@@ -89,17 +94,21 @@ should start with '{', got %c in line %d\n",
         }
 
         tok_free(tok);
-        env = st_createScope(NULL);
+        tok = NULL;
+
+        env = st_createScope(env);
         if (env == NULL) {
                 char *err = "Can't create symbol table.";
                 syntaxerror(err);
         }
         fputs("{", stdout);
 
+        tok = scan(in);
         decls();
         stmts();
 
-        tok = scan(in);
+        if (tok == NULL)
+                tok = scan(in);
         if (tok->type != '}') {
                 char *err;
                 asprintf(&err,
@@ -109,8 +118,11 @@ should end with '}', got %c in line %d\n",
                 syntaxerror(err);
         }
         tok_free(tok);
-        st_free(env);
-        fputs("}\n", stdout);
+        tok = NULL;
+
+        if (env->parent)
+                env = env->parent;
+        fputs("} ", stdout);
 }
 
 /**
@@ -120,6 +132,10 @@ should end with '}', got %c in line %d\n",
 void decls()
 {
         decl();
+        tok = scan(in);
+        // tok is type
+        if (tok->type <= 263 && tok->type >= 260)
+                decls();
 }
 
 /**
@@ -127,15 +143,8 @@ void decls()
 */
 void decl()
 {
-        tok = scan(in);
-        if (tok->type != tok_id) {
-                char *err;
-                asprintf(&err,
-                        "Syntax Error: declaration \
-should start with a type, got %s in line %d\n",
-                        tok->data, line);
-                syntaxerror(err);
-        }
+        if (tok == NULL)
+                tok = scan(in);
         char *type = malloc(MAX_ID_LEN);
         strcpy(type, tok->data);
         tok_free(tok);
@@ -163,11 +172,17 @@ should end with ';', got %c in line %d\n",
                         tok->type, line);
                 syntaxerror(err);
         }
+        tok_free(tok);
+        tok = NULL;
 }
 
 void stmts()
 {
         stmt();
+        if (tok == NULL)
+                tok = scan(in);
+        if (tok->type == '{' || tok->type == tok_id)
+                stmt();
 }
 
 /*
@@ -178,7 +193,8 @@ void stmts()
 */
 void stmt()
 {
-        tok = scan(in);
+        if (tok == NULL)
+                tok = scan(in);
 
         // factor
         if (tok->type == tok_id) {
@@ -186,11 +202,13 @@ void stmt()
                 if (node == NULL) {
                         char *err;
                         asprintf(&err,
-                                "Syntax Error: variable \
-%s undefined in line %d\n", tok->data, line);
+                                "\nError: Variable %s undefined \
+in line %d\n", tok->data, line);
                         syntaxerror(err);
                 }
                 printf("%s: %s", tok->data, node->val);
+                free(node->key);
+                free(node->val);
                 tok_free(tok);
 
                 tok = scan(in);
@@ -203,6 +221,7 @@ should end with ';' in line %d\n", line);
                 }
                 fputs("; ", stdout);
                 tok_free(tok);
+                tok = NULL;
         }
 
         // block
