@@ -1,6 +1,10 @@
+#!/usr/bin/env escript
 %%% Infix translator
 -module(infix_translator).
 -export([t/1]).
+
+main([String]) ->
+  t({String, string}).
 
 t({Filename, file}) ->
   case file:read_file(Filename) of

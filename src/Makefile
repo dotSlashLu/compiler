@@ -18,6 +18,12 @@ lexer.out: libs
 libs:
 	cd $(LIBDIR) && $(MAKE)
 
+test: infix_translator.out
+	echo "Testing C version:"
+	./infix_translator.out "1+2+3"
+	echo -e "\nTesting erl version:"
+	./infix_translator.erl "1+2+3"
+
 clean:
 	for dir in $(DIRS); do \
 		(cd $$dir && rm -rf *.out *.o *.a *.class *.beam *.dSYM) || exit 1; \
